@@ -1,0 +1,17 @@
+fastapi
+uvicorn
+requests
+python-dotenv
+unstructured[pdf]
+
+langchain>=0.2.16
+langchain-openai>=0.1.0
+langchain-chroma>=0.1.2
+langchain-community>=0.0.13
+
+sentence-transformers
+chromadb>=0.5.0
+pydantic
+tqdm
+openai
+
