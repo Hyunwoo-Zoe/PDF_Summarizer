@@ -1,46 +1,24 @@
-import sqlite3
+import redis
 from functools import lru_cache
 from typing import Optional
 
-_SCHEMA = """
-CREATE TABLE IF NOT EXISTS pdf_summaries (
-    file_id TEXT PRIMARY KEY,
-    summary TEXT NOT NULL
-);
-CREATE TABLE IF NOT EXISTS chat_summaries (
-    chat_id TEXT PRIMARY KEY,
-    summary TEXT NOT NULL
-);
-"""
+class RedisCacheDB:
+    def __init__(self, host="localhost", port=6379, db=0):
+        self.r = redis.Redis(host=host, port=port, db=db, decode_responses=True)
 
-class CacheDB:
-    def __init__(self, path="./summary_cache.db"):
-        self.conn = sqlite3.connect(path, check_same_thread=False, isolation_level=None)
-        self.conn.executescript(_SCHEMA)
-
-    # PDF
     def get_pdf(self, fid: str) -> Optional[str]:
-        r = self.conn.execute(
-            "SELECT summary FROM pdf_summaries WHERE file_id=?", (fid,)
-        ).fetchone()
-        return r[0] if r else None
-    def set_pdf(self, fid: str, s: str):
-        self.conn.execute(
-            "INSERT OR REPLACE INTO pdf_summaries VALUES (?,?)", (fid, s)
-        )
+        return self.r.get(f"pdf:{fid}")
 
-    # Chat
+    def set_pdf(self, fid: str, s: str):
+        self.r.set(f"pdf:{fid}", s)
+
     def get_chat(self, cid: str) -> Optional[str]:
-        r = self.conn.execute(
-            "SELECT summary FROM chat_summaries WHERE chat_id=?", (cid,)
-        ).fetchone()
-        return r[0] if r else None
+        return None  # 비활성화
+
     def set_chat(self, cid: str, s: str):
-        self.conn.execute(
-            "INSERT OR REPLACE INTO chat_summaries VALUES (?,?)", (cid, s)
-        )
+        pass  # 비활성화
 
 @lru_cache(maxsize=1)
-def get_cache_db() -> "CacheDB":
-    return CacheDB()
+def get_cache_db() -> "RedisCacheDB":
+    return RedisCacheDB()
 

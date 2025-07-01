@@ -14,4 +14,4 @@ chromadb>=0.5.0
 pydantic
 tqdm
 openai
-
+redis>=5.0.0
