@@ -1,19 +1,15 @@
 from langchain.chains.summarize import load_summarize_chain
 from langchain_openai import ChatOpenAI
 from langchain.schema import Document
-from app.cache.cache_db import CacheDB
 
 class ChatSummaryService:
-    def __init__(self, cache: CacheDB):
-        self.cache = cache
+    def __init__(self):
         self.llm = ChatOpenAI(temperature=0.3)
 
-    def generate(self, chat_id: str, messages: list[str]) -> str:
-        if (c := self.cache.get_chat(chat_id)):
-            return c
-        docs = [Document(page_content="\n".join(messages))]
+    def generate(self, messages: list[str]) -> str:
+        combined_text = "\n".join(messages)
+        docs = [Document(page_content=combined_text)]
         chain = load_summarize_chain(self.llm, chain_type="stuff")
-        s = chain.run(docs)
-        self.cache.set_chat(chat_id, s)
-        return s
+        summary = chain.run(docs)
+        return summary
 
