@@ -1,3 +1,4 @@
+
 from langchain.chains.summarize import load_summarize_chain
 from langchain_openai import ChatOpenAI
 from app.vectordb.vector_db import VectorDB
